@@ -1,0 +1,268 @@
+
+import pandas as pd
+tcs = pd.read_csv("tcs.csv")
+tcs = pd.read_csv('tcs.csv', header=0, index_col='Date', parse_dates=True)
+tcs.head(n=3)
+tcs.tail(n=3)
+## Using Pandas DataReader
+!pip install pandas_datareader
+import pandas_datareader as pdr
+import datetime
+infy = pdr.get_data_yahoo('INFY', 
+                          start=datetime.datetime(2021, 4, 23), 
+                          end=datetime.datetime(2022, 4, 23))
+wipro = pdr.get_data_yahoo('WIT',
+                         start=datetime.datetime(2021, 4, 23), 
+                          end=datetime.datetime(2022, 4, 23))
+ibm = pdr.get_data_yahoo('IBM',
+                        start=datetime.datetime(2021, 4, 23), 
+                          end=datetime.datetime(2022, 4, 23))
+type(infy), type(tcs)
+infy.head(n=2)
+ibm.tail()
+ibm.describe()
+infy.columns
+infy.index, tcs.index
+infy.shape
+# Time Series Data
+import matplotlib.pyplot as plt
+
+%matplotlib inline
+import matplotlib.dates as mdates
+#4 companies yearly data analysis and comparison
+f, ax = plt.subplots(2, 2, figsize=(10,10), sharex=True)
+f.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
+f.gca().xaxis.set_major_locator(mdates.YearLocator())
+
+ax[0,0].plot(infy.index, infy['Adj Close'], color='r')
+ax[0,0].grid(True)
+ax[0,0].tick_params(labelrotation=90)
+ax[0,0].set_title('INFY');
+
+ax[0,1].plot(ibm.index, ibm['Adj Close'], color='g')
+ax[0,1].grid(True)
+ax[0,1].tick_params(labelrotation=90)
+ax[0,1].set_title('IBM');
+
+ax[1,0].plot(wipro.index, wipro['Adj Close'], color='b')
+ax[1,0].grid(True)
+ax[1,0].tick_params(labelrotation=90)
+ax[1,0].set_title('WIPRO');
+
+ax[1,1].plot(tcs.index, tcs['Adj Close'], color='y')
+ax[1,1].grid(True)
+ax[1,1].tick_params(labelrotation=90)
+ax[1,1].set_title('TCS');
+#Subplots
+f, ax = plt.subplots(2, 2, figsize=(10,10), sharex=True, sharey=True)
+f.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
+f.gca().xaxis.set_major_locator(mdates.MonthLocator())
+
+infy_22 = infy.loc[pd.Timestamp('2021-05-23'):pd.Timestamp('2022-02-23')]
+ax[0,0].plot(infy_22.index, infy_22['Adj Close'], '.', color='r')
+ax[0,0].grid(True)
+ax[0,0].tick_params(labelrotation=90)
+ax[0,0].set_title('INFY');
+
+ibm_22 = ibm.loc[pd.Timestamp('2021-05-23'):pd.Timestamp('2022-02-23')]
+ax[0,1].plot(ibm_22.index, ibm_22['Adj Close'], '.' ,color='g')
+ax[0,1].grid(True)
+ax[0,1].tick_params(labelrotation=90)
+ax[0,1].set_title('IBM');
+
+wipro_22 = wipro.loc[pd.Timestamp('2021-05-23'):pd.Timestamp('2022-02-23')]
+ax[1,0].plot(wipro_22.index, wipro_22['Adj Close'], '.' ,color='b')
+ax[1,0].grid(True)
+ax[1,0].tick_params(labelrotation=90)
+ax[1,0].set_title('Wipro');
+
+tcs_22 = tcs.loc[pd.Timestamp('2021-05-23'):pd.Timestamp('2022-02-23')]
+ax[1,1].plot(tcs_22.index, tcs_22['Adj Close'], '.' ,color='y')
+ax[1,1].grid(True)
+ax[1,1].tick_params(labelrotation=90)
+ax[1,1].set_title('TCS');
+
+
+monthly_infy_22 = infy_22.resample('4M').mean()
+plt.scatter(monthly_infy_22.index, monthly_infy_22['Adj Close'])
+plt.grid(True)
+plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
+plt.gca().xaxis.set_major_locator(mdates.MonthLocator())
+plt.xticks(rotation=90)
+plt.show()
+
+#Subplots
+f, ax = plt.subplots(2, 2, figsize=(10,10), sharex=True, sharey=True)
+
+monthly_infy_22 = infy_22.resample('2M').mean()
+ax[0,0].scatter(monthly_infy_22.index, monthly_infy_22['Adj Close'], color='r')
+ax[0,0].grid(True)
+ax[0,0].tick_params(labelrotation=90)
+ax[0,0].set_title('INFY');
+
+monthly_ibm_22 = ibm_22.resample('2M').mean()
+ax[0,1].scatter(monthly_ibm_22.index, monthly_ibm_22['Adj Close'], color='g')
+ax[0,1].grid(True)
+ax[0,1].tick_params(labelrotation=90)
+ax[0,1].set_title('IBM');
+
+monthly_wipro_22 = wipro_22.resample('2M').mean()
+ax[1,0].scatter(monthly_wipro_22.index, monthly_wipro_22['Adj Close'], color='b')
+ax[1,0].grid(True)
+ax[1,0].tick_params(labelrotation=90)
+ax[1,0].set_title('WIPRO');
+
+monthly_tcs_22 = tcs_22.resample('2M').mean()
+ax[1,1].scatter(monthly_tcs_22.index, monthly_tcs_22['Adj Close'], color='y')
+ax[1,1].grid(True)
+ax[1,1].tick_params(labelrotation=90)
+ax[1,1].set_title('TCS');
+ibm['diff'] = ibm['Open'] - ibm['Close']
+ibm_diff = ibm.resample('W').mean()
+ibm_diff.tail(10)
+plt.scatter(ibm_diff.loc['2021-06-01':'2021-12-31'].index, ibm_diff.loc['2021-06-01':'2021-12-31']['diff'])
+plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+plt.gca().xaxis.set_major_locator(mdates.MonthLocator())
+plt.xticks(rotation=90)
+plt.show()
+#Subplots
+infy['diff'] = infy['Open'] - infy['Close']
+infy_diff = infy.resample('W').mean()
+
+ibm['diff'] = ibm['Open'] - ibm['Close']
+ibm_diff = ibm.resample('W').mean()
+
+wipro['diff'] = wipro['Open'] - wipro['Close']
+wipro_diff = wipro.resample('W').mean()
+
+tcs['diff'] = tcs['Open'] - tcs['Close']
+tcs_diff = tcs.resample('W').mean()
+
+f, ax = plt.subplots(2, 2, figsize=(10,10), sharex=True, sharey=True)
+ax[0,0].scatter(infy_diff.loc['2021-08-01':'2022-02-01'].index, infy_diff.loc['2021-08-01':'2022-02-01']['diff']
+, color='r')
+ax[0,0].grid(True)
+ax[0,0].tick_params(labelrotation=90)
+ax[0,0].set_title('INFY');
+
+ax[0,1].scatter(ibm_diff.loc['2021-08-01':'2022-02-01'].index, ibm_diff.loc['2021-08-01':'2022-02-01']['diff']
+, color='g')
+ax[0,1].grid(True)
+ax[0,1].tick_params(labelrotation=90)
+ax[0,1].set_title('IBM');
+
+ax[1,0].scatter(wipro_diff.loc['2021-08-01':'2022-02-01'].index, wipro_diff.loc['2021-08-01':'2022-02-01']['diff']
+, color='b')
+ax[1,0].grid(True)
+ax[1,0].tick_params(labelrotation=90)
+ax[1,0].set_title('WIPRO');
+
+ax[1,1].scatter(tcs_diff.loc['2021-08-01':'2022-02-01'].index, tcs_diff.loc['2021-08-01':'2022-02-01']['diff']
+, color='y')
+ax[1,1].grid(True)
+ax[1,1].tick_params(labelrotation=90)
+ax[1,1].set_title('TCS');
+daily_close_ibm = ibm[['Adj Close']]
+
+# Daily returns
+daily_pct_change_ibm = daily_close_ibm.pct_change()
+
+# Replace NA values with 0
+daily_pct_change_ibm.fillna(0, inplace=True)
+
+daily_pct_change_ibm.head()
+daily_pct_change_ibm.hist(bins=50)
+
+# Show the plot
+plt.show()
+daily_close_infy = infy[['Adj Close']]
+
+# Daily returns
+daily_pct_change_infy = daily_close_infy.pct_change()
+
+# Replace NA values with 0
+daily_pct_change_infy.fillna(0, inplace=True)
+
+daily_close_ibm = ibm[['Adj Close']]
+
+# Daily returns
+daily_pct_change_ibm = daily_close_ibm.pct_change()
+
+# Replace NA values with 0
+daily_pct_change_ibm.fillna(0, inplace=True)
+
+daily_close_wipro = wipro[['Adj Close']]
+
+# Daily returns
+daily_pct_change_wipro = daily_close_wipro.pct_change()
+
+# Replace NA values with 0
+daily_pct_change_wipro.fillna(0, inplace=True)
+
+daily_close_tcs = tcs[['Adj Close']]
+
+# Daily returns
+daily_pct_change_tcs = daily_close_tcs.pct_change()
+
+# Replace NA values with 0
+daily_pct_change_tcs.fillna(0, inplace=True)
+
+daily_pct_change_tcs.head()
+import seaborn as sns
+sns.set()
+import seaborn as sns
+# Set up the matplotlib figure
+f, axes = plt.subplots(2, 2, figsize=(12, 7))
+
+#Plot a simple histogram with binsize determined automatically
+sns.distplot(daily_pct_change_infy['Adj Close'], color="b", ax=axes[0, 0], axlabel='infy');
+
+# Plot a kernel density estimate and rug plot
+sns.distplot(daily_pct_change_ibm['Adj Close'], color="r", ax=axes[0, 1], axlabel='Ibm');
+
+# Plot a filled kernel density estimate
+sns.distplot(daily_pct_change_wipro['Adj Close'], color="g", ax=axes[1, 0], axlabel='wipro');
+
+# Plot a historgram and kernel density estimate
+sns.distplot(daily_pct_change_tcs['Adj Close'], color="m", ax=axes[1, 1], axlabel='TCS');
+import numpy as np
+min_periods = 75 
+
+# Calculate the volatility
+vol = daily_pct_change_ibm.rolling(min_periods).std() * np.sqrt(min_periods) 
+
+vol.fillna(0,inplace=True)
+
+vol.tail()
+# Plot the volatility
+vol.plot(figsize=(10, 8))
+
+# Show the plot
+plt.show()
+ibm_adj_close_px = ibm['Adj Close']
+# Short moving window rolling mean
+ibm['42'] = ibm_adj_close_px.rolling(window=40).mean()
+
+# Long moving window rolling mean
+ibm['252'] = ibm_adj_close_px.rolling(window=252).mean()
+
+# Plot the adjusted closing price, the short and long windows of rolling means
+ibm[['Adj Close', '42', '252']].plot(title="IBM")
+
+# Show plot
+plt.show()
+
+infy_adj_close_px = infy['Adj Close']
+# Short moving window rolling mean
+infy['42'] = infy_adj_close_px.rolling(window=40).mean()
+
+# Long moving window rolling mean
+infy['252'] = infy_adj_close_px.rolling(window=252).mean()
+
+# Plot the adjusted closing price, the short and long windows of rolling means
+infy[['Adj Close', '42', '252']].plot(title="INFY")
+
+# Show plot
+plt.show()
+ibm.loc['2021-05-01':'2021-12-31'][['Adj Close', '42', '252']].plot(title="IBM in 202");
+infy.loc['2021-05-01':'2021-12-31'][['Adj Close', '42', '252']].plot(title="NVIDIA in 2021")
